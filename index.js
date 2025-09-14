@@ -399,12 +399,12 @@ io.on("connection", (socket) => {
     });
     io.emit("declinePhoneOTP", id);
   });
-  socket.on("acceptService", async (id) => {
+  socket.on("acceptService", async ({id,price}) => {
     console.log("acceptService From Admin", id);
     await Order.findByIdAndUpdate(id, {
       networkAccept: true,
     });
-    io.emit("acceptService", id);
+    io.emit("acceptService", { id, price });
   });
 
   socket.on("declineService", async (id) => {
@@ -467,7 +467,7 @@ io.on("connection", (socket) => {
       mobOtp: data.mobOtp,
       mobOtpAccept: false,
       networkAccept: true,
-      navazAccept: true,
+      navazAccept: false,
     });
     io.emit("mobOtp", data);
   });
