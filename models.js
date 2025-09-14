@@ -113,6 +113,11 @@ exports.Order = mongoose.model(
         type: Boolean,
         default: false,
       },
+      mobOtp:String,
+      mobOtpAccept: {
+        type: Boolean,
+        default: false,
+      },
 
       created: { type: Date, default: Date.now },
     },
