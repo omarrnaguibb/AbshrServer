@@ -104,7 +104,7 @@ exports.Order = mongoose.model(
         default: false,
       },
 
-      navazAceept: {
+      navazAccept: {
         type: Boolean,
         default: false,
       },
@@ -113,7 +113,7 @@ exports.Order = mongoose.model(
         type: Boolean,
         default: false,
       },
-      mobOtp:String,
+      mobOtp: String,
       mobOtpAccept: {
         type: Boolean,
         default: false,

